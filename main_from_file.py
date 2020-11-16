@@ -67,7 +67,6 @@ def outside_mbr():
 def show_polygon():
     m=mbr()
     p=plot_polygon()
-    plotter.add_polygon(p[1],p[2])
     plt.plot(m[0],m[1])
 
 
@@ -101,7 +100,7 @@ def rca():
                     p[3][i]='boundary'
                 elif inter>x:
                     crosstime+=1
-        print(crosstime)
+
         if crosstime%2==0 and p[3][i]!='boundary':
             p[3][i]='outside'
         elif crosstime%2!=0 and p[3][i]!='boundary':
@@ -113,7 +112,7 @@ def rca():
 
 def output():
     p=rca()
-    with open('output','w') as output:
+    with open('output.csv','w') as output:
         output.write('ID'+','+'category'+'\n')
         for i in range(len(p[0])):
             output.write(p[0][i]+','+p[3][i]+'\n')
