@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from plotter import Plotter
 
-def read_polygon():
+def read_polygon():    #get each point of the polygon
     with open('polygon.csv','r') as f:
         plot=f.readlines()[1:]
         polygon_x_all=[]
@@ -18,7 +18,7 @@ def read_polygon():
             polygon_y_all.append(float(polygon_y))
     return polygon_id_all,polygon_x_all,polygon_y_all
 
-def mbr():
+def mbr():     #get the Minimum Bounding Rectangle of the polygon
     p=read_polygon()
     a=p[1]
     b=p[2]
@@ -33,12 +33,13 @@ def main():
     plotter = Plotter()
     print("read polygon.csv")
     read_polygon()
+    #get the input point
     print("Insert point information")
     x = float(input("x coordinate: "))
     y = float(input("y coordinate: "))
     point=[x,y,'location']
-
     print("categorize point")
+    #Classify the test points outside and inside the MBR.
     mbr()
     xmax = mbr()[0][0]
     xmin = mbr()[0][1]
@@ -48,7 +49,7 @@ def main():
         point[2] = 'outside'
     else:
         point[2] = 'inside'
-
+    # Classfily all the points outside,inside and on the boundary
     point_polygon = read_polygon()[1:]
     crosstime = 0
     for n in range(len(point_polygon[0]) - 1):
@@ -56,15 +57,18 @@ def main():
         y1 = point_polygon[1][n]
         x2 = point_polygon[0][n + 1]
         y2 = point_polygon[1][n + 1]
-
+        # check whether the point coincides with the vertex of the polygon
         if y1 == y2 == y and x1 == x2 == x:
             point[2] = 'boundary'
         elif (x1 == x and y == y1) or (x2 == x and y2 == y):
             point[2] = 'boundary'
+        # check whether the point is on vertical segments
         elif x == x1 == x2 and (y1 < y < y2 or y2 < y < y1):
             point[2] = 'boundary'
+        # check whether the point is on horizontal segments
         elif y == y1 == y2 and (x1 < x < x2 or x2 < x < x1):
             point[2] = 'boundary'
+        # check the common situation
         elif y1 <= y < y2 or y2 <= y < y1:
             inter = (y - y1) * (x2 - x1) / (y2 - y1) + x1
             if inter == x:
@@ -76,7 +80,7 @@ def main():
             point[2] = 'outside'
         elif crosstime % 2 != 0 and point[2] != 'boundary':
             point[2] == 'inside'
-
+    # Draw the polygon and points
     print("plot polygon and point")
     m = mbr()
     p = read_polygon()

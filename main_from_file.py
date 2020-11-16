@@ -1,8 +1,7 @@
 import matplotlib.pyplot as plt
 from plotter import Plotter
 
-
-def plot_polygon():
+def plot_polygon():    #get each point of the polygon
     with open('polygon.csv','r') as f:
         plot=f.readlines()[1:]
         polygon_x_all=[]
@@ -19,7 +18,7 @@ def plot_polygon():
             polygon_y_all.append(float(polygon_y))
     return polygon_id_all,polygon_x_all,polygon_y_all
 
-def mbr():
+def mbr():    #get the Minimum Bounding Rectangle of the polygon
     p=plot_polygon()
     a=p[1]
     b=p[2]
@@ -29,7 +28,7 @@ def mbr():
     ymin=min(b)
     return [xmax,xmin,xmin,xmax,xmax],[ymax,ymax,ymin,ymin,ymax]
 
-def point_list():
+def point_list():    #get the input test points
 
     with open('input.csv','r') as f:
         plot1=f.readlines()[1:]
@@ -49,7 +48,7 @@ def point_list():
             location.append('null')
     return [point_id_all,point_x_all,point_y_all,location]
 
-def outside_mbr():
+def outside_mbr():    #Classify the test points outside and inside the MBR.
     p=point_list()
     xmax = mbr()[0][0]
     xmin = mbr()[0][1]
@@ -64,17 +63,15 @@ def outside_mbr():
             p[3][i]='inside'
     return p
 
-def show_polygon():
+def show_polygon():    #Draw the polygon
     m=mbr()
     p=plot_polygon()
     plt.plot(m[0],m[1])
 
 
-def rca():
+def rca():    #Classfily all the points outside,inside and on the boundary
     point_polygon=plot_polygon()[1:]
-
     p=outside_mbr()
-
     for i in range(len(p[0])):
         x=p[1][i]
         y=p[2][i]
@@ -85,32 +82,31 @@ def rca():
             y1=point_polygon[1][n]
             x2=point_polygon[0][n+1]
             y2=point_polygon[1][n+1]
-
+            #check whether the point coincides with the vertex of the polygon
             if y1==y2==y and x1==x2==x:
                 p[3][i]='boundary'
             elif (x1==x and y==y1) or (x2==x and y2==y):
                 p[3][i]='boundary'
+            #check whether the point is on vertical segments
             elif x==x1==x2 and (y1<y<y2 or y2<y<y1):
                 p[3][i]='boundary'
+            #check whether the point is on horizontal segments
             elif y==y1==y2 and (x1<x<x2 or x2<x<x1):
                 p[3][i]='boundary'
+            #check the special and common situations
             elif y1<=y<y2 or y2<=y<y1:
                 inter=(y-y1)*(x2-x1)/(y2-y1)+x1
                 if inter==x:
                     p[3][i]='boundary'
                 elif inter>x:
                     crosstime+=1
-
         if crosstime%2==0 and p[3][i]!='boundary':
             p[3][i]='outside'
         elif crosstime%2!=0 and p[3][i]!='boundary':
             p[3][i]=='inside'
-
     return p
 
-
-
-def output():
+def output():          #output the point csv file
     p=rca()
     with open('output.csv','w') as output:
         output.write('ID'+','+'category'+'\n')
@@ -127,6 +123,7 @@ def main():
     rca()
     print('write output.csv')
     output()
+    #draw the point and polygon and show the point classification result
     print('plot polygon and points')
     m = mbr()
     p = plot_polygon()
@@ -135,9 +132,7 @@ def main():
     p = rca()
     for i in range(len(p[0])):
         plotter.add_point(p[1][i], p[2][i], p[3][i])
-
     plotter.show()
-
 
 if __name__ == '__main__':
     main()
